@@ -28,6 +28,9 @@ uniform float wash_start = 0.55;
 uniform vec3 rim_color : source_color = vec3(1.0, 0.86, 0.55);
 uniform float rim_strength = 0.02;
 
+// Multiplies the final colour past 1.0 so the WorldEnvironment glow picks it up.
+uniform float hdr_intensity = 1.0;
+
 const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
 
 float luma(vec3 c) {
@@ -68,5 +71,5 @@ void fragment() {
 	float dy = mask_of(uv + vec2(0.0, px.y)) - mask_of(uv - vec2(0.0, px.y));
 	col += rim_color * smoothstep(0.04, 0.30, length(vec2(dx, dy))) * rim_strength;
 
-	COLOR = vec4(col, 1.0);
+	COLOR = vec4(col * hdr_intensity, 1.0);
 }

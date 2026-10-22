@@ -68,6 +68,14 @@ def main() -> None:
     assert 0.2 < dark < 0.8, f"{dark:.1%} dark layer coverage"
     assert plum > 0.0005, f"only {plum:.3%} plum highlights"
 
+    # Art texels must stay hard-edged: a pixel sitting between two very different
+    # neighbours means the layer was sampled with linear filtering.
+    left, mid, right = base[:, :-2], base[:, 1:-1], base[:, 2:]
+    edge = np.abs(left - right).max(axis=2) > 30
+    ramp = edge & (np.abs(mid - left).max(axis=2) > 6) & (np.abs(mid - right).max(axis=2) > 6)
+    soft = float(ramp.sum() / max(edge.sum(), 1))
+    assert soft < 0.05, f"{soft:.1%} of texel edges are blurred"
+
     print(f"ok  sky={sky:.1%} dark={dark:.1%} plum={plum:.3%} hard_red={hard_red:.3%}")
 
 

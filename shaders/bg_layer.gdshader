@@ -5,7 +5,6 @@ render_mode unshaded;
 global uniform vec2 camera_pan;
 
 uniform sampler2D layer_tex : repeat_enable, filter_nearest;
-uniform sampler2D glow_tex : repeat_enable, filter_linear;
 uniform sampler2D grade : filter_linear;
 uniform vec2 tex_size = vec2(320.0, 180.0);
 uniform float texel_px = 6.0;
@@ -15,6 +14,9 @@ uniform vec2 layer_offset = vec2(0.0);
 
 uniform float grade_gain = 3.6;
 uniform float opacity = 1.0;
+
+// Multiplies the final colour past 1.0 so the WorldEnvironment glow picks it up.
+uniform float hdr_intensity = 1.0;
 
 uniform float glow_threshold = 0.10;
 uniform float glow_radius = 0.5;
@@ -38,8 +40,20 @@ vec2 art_uv(vec2 uv, vec2 texel_shift) {
 	return p / tex_size;
 }
 
+// Compatibility stores filtering on the GL texture itself, so binding layer_tex
+// to a second linear sampler would blur the art. Filter the glow by hand instead.
+vec4 bilinear(vec2 uv) {
+	vec2 p = uv * tex_size - 0.5;
+	vec2 f = fract(p);
+	vec2 t = (floor(p) + 0.5) / tex_size;
+	vec2 d = 1.0 / tex_size;
+	vec4 a = mix(texture(layer_tex, t), texture(layer_tex, t + vec2(d.x, 0.0)), f.x);
+	vec4 b = mix(texture(layer_tex, t + vec2(0.0, d.y)), texture(layer_tex, t + d), f.x);
+	return mix(a, b, f.y);
+}
+
 float bright_of(vec2 uv, vec2 shift) {
-	vec4 s = texture(glow_tex, art_uv(uv, shift));
+	vec4 s = bilinear(art_uv(uv, shift));
 	return s.a * max(luma(s.rgb) * grade_gain - glow_threshold, 0.0);
 }
 
@@ -62,5 +76,5 @@ void fragment() {
 	col *= mix(vec3(1.0), shadow_color, sm * shadow_strength * (1.0 - lit));
 
 	float a = max(s.a, g * glow_strength);
-	COLOR = vec4(col, clamp(a, 0.0, 1.0) * opacity);
+	COLOR = vec4(col * hdr_intensity, clamp(a, 0.0, 1.0) * opacity);
 }
