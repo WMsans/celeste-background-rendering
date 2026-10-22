@@ -36,6 +36,8 @@ func _initialize() -> void:
 	_viewport = SubViewport.new()
 	_viewport.size = Vector2i(1920, 1080)
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	# A fresh SubViewport filters linearly; match the project's nearest default.
+	_viewport.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
 	root.add_child(_viewport)
 	_scene = load("res://scenes/main.tscn").instantiate()
 	_viewport.add_child(_scene)
@@ -62,5 +64,4 @@ func _process(_delta: float) -> bool:
 
 func _apply() -> void:
 	var pan: Vector2 = _shots[_index].pan
-	(_scene.get_node("Camera2D") as Camera2D).position = pan
-	RenderingServer.global_shader_parameter_set("camera_pan", pan)
+	(_scene.get_node("Camera2D") as PixelCamera).teleport(pan)

@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c4uno7gop6b3f"]
 
-[ext_resource type="Script" uid="uid://4mbkfl2ocw71" path="res://scripts/camera_scroll.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://bknf4wv5tp3ph" path="res://scripts/pixel_camera.gd" id="1_camera"]
+[ext_resource type="Script" uid="uid://cygy137xr6ex0" path="res://scripts/parallax_sprite.gd" id="2_parallax"]
 [ext_resource type="Texture2D" uid="uid://b18rfou40rc52" path="res://textures/parallax_pixelperfect/bg0_00002_.png" id="5_bg0"]
 [ext_resource type="Texture2D" uid="uid://dcl5b4nohj8f4" path="res://textures/parallax_pixelperfect/bg1_00002_.png" id="6_bg1"]
 [ext_resource type="Texture2D" uid="uid://by7jv2d5fdjca" path="res://textures/parallax_pixelperfect/bg2_00002_.png" id="7_bg2"]
@@ -10,12 +11,12 @@ background_mode = 3
 tonemap_mode = 2
 glow_enabled = true
 glow_intensity = 3.0
-glow_bloom = 0.1
+glow_bloom = 0.4
 
 [node name="Main" type="Node2D" unique_id=1188514119]
-script = ExtResource("1_script")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1783214974]
+script = ExtResource("1_camera")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=269647969]
 environment = SubResource("Environment_w5pmr")
@@ -24,11 +25,17 @@ environment = SubResource("Environment_w5pmr")
 
 [node name="Sky" type="Sprite2D" parent="Bg" unique_id=1667895124]
 texture = ExtResource("5_bg0")
+script = ExtResource("2_parallax")
+scroll_scale = Vector2(0.05, 0)
 
 [node name="Mid" type="Sprite2D" parent="Bg" unique_id=340196969]
 modulate = Color(1, 1, 1, 0.7058824)
 position = Vector2(0, 20)
 texture = ExtResource("6_bg1")
+script = ExtResource("2_parallax")
+scroll_scale = Vector2(0.15, 0.05)
 
 [node name="Near" type="Sprite2D" parent="Bg" unique_id=717980658]
 texture = ExtResource("7_bg2")
+script = ExtResource("2_parallax")
+scroll_scale = Vector2(0.35, 0.12)
