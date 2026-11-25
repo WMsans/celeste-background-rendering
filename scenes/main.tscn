@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bknf4wv5tp3ph" path="res://scripts/pixel_camera.gd" id="1_camera"]
 [ext_resource type="Script" uid="uid://cygy137xr6ex0" path="res://scripts/parallax_sprite.gd" id="2_parallax"]
+[ext_resource type="Script" path="res://scripts/fg_layer.gd" id="3_fg"]
 [ext_resource type="Texture2D" uid="uid://b18rfou40rc52" path="res://textures/parallax_pixelperfect/bg0_00002_.png" id="5_bg0"]
 [ext_resource type="Texture2D" uid="uid://dcl5b4nohj8f4" path="res://textures/parallax_pixelperfect/bg1_00002_.png" id="6_bg1"]
 [ext_resource type="Texture2D" uid="uid://by7jv2d5fdjca" path="res://textures/parallax_pixelperfect/bg2_00002_.png" id="7_bg2"]
@@ -12,6 +13,40 @@ tonemap_mode = 2
 glow_enabled = true
 glow_intensity = 3.0
 glow_bloom = 0.4
+
+[sub_resource type="FastNoiseLite" id="Noise_mist"]
+frequency = 0.006
+fractal_octaves = 6
+
+[sub_resource type="Gradient" id="Ramp_mist"]
+offsets = PackedFloat32Array(0.42, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.4)
+
+[sub_resource type="NoiseTexture2D" id="Tex_mist"]
+width = 512
+height = 512
+seamless = true
+color_ramp = SubResource("Ramp_mist")
+noise = SubResource("Noise_mist")
+
+[sub_resource type="FastNoiseLite" id="Noise_wash"]
+seed = 7
+frequency = 0.004
+fractal_octaves = 2
+
+[sub_resource type="Gradient" id="Ramp_wash"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.45, 0.25, 0.8, 1, 0.9, 0.3, 0.55, 1, 1, 0.6, 0.25, 1)
+
+[sub_resource type="NoiseTexture2D" id="Tex_wash"]
+width = 512
+height = 288
+seamless = true
+color_ramp = SubResource("Ramp_wash")
+noise = SubResource("Noise_wash")
+
+[sub_resource type="CanvasItemMaterial" id="Mat_add"]
+blend_mode = 1
 
 [node name="Main" type="Node2D" unique_id=1188514119]
 
@@ -39,3 +74,33 @@ scroll_scale = Vector2(0.15, 0.05)
 texture = ExtResource("7_bg2")
 script = ExtResource("2_parallax")
 scroll_scale = Vector2(0.35, 0.12)
+
+[node name="Fg" type="CanvasLayer" parent="."]
+layer = 1
+follow_viewport_enabled = true
+
+[node name="MistA" type="Sprite2D" parent="Fg"]
+visible = false
+modulate = Color(1, 1, 1, 0.8)
+texture = SubResource("Tex_mist")
+script = ExtResource("3_fg")
+scroll_scale = Vector2(0.9, 0.9)
+speed = Vector2(16, 8)
+
+[node name="MistB" type="Sprite2D" parent="Fg"]
+visible = false
+modulate = Color(1, 1, 1, 0.8)
+texture = SubResource("Tex_mist")
+flip_h = true
+flip_v = true
+script = ExtResource("3_fg")
+scroll_scale = Vector2(0.8, 0.8)
+speed = Vector2(4, 4)
+
+[node name="Wash" type="Sprite2D" parent="Fg"]
+modulate = Color(1, 1, 1, 0.15)
+material = SubResource("Mat_add")
+texture = SubResource("Tex_wash")
+script = ExtResource("3_fg")
+scroll_scale = Vector2(0.5, 0.5)
+speed = Vector2(4, 4)
